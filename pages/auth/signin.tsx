@@ -1,40 +1,23 @@
+import * as React from 'react';
 import { GetServerSideProps } from 'next';
-import { getProviders, signIn, ClientSafeProvider, getSession } from 'next-auth/react';
+import { getProviders, ClientSafeProvider, getSession } from 'next-auth/react';
 
-interface SignInProps {
+import { AppSignIn } from 'src/apps/auth/AppSignIn';
+import { withLayout } from '~/common/layout/withLayout';
+
+interface SignInPageProps {
   providers: Record<string, ClientSafeProvider> | null;
 }
 
-const SignIn: React.FC<SignInProps> = ({ providers }) => {
-  return (
-    <div>
-      <h1>Sign in</h1>
-      {providers && Object.values(providers).map((provider) => (
-        <div key={provider.name}>
-          <button onClick={() => signIn(provider.id)}>
-            Sign in with {provider.name}
-          </button>
-        </div>
-      ))}
-    </div>
-  );
-};
+export default function SignInPage({ providers }: SignInPageProps) {
+  return withLayout({ type: 'optima' }, <AppSignIn providers={providers} />);
+}
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
   if (session) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
+    return { redirect: { destination: '/', permanent: false } };
   }
-
   const providers = await getProviders();
-  return {
-    props: { providers },
-  };
+  return { props: { providers } };
 };
-
-export default SignIn;
