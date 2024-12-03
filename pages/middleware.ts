@@ -1,17 +1,19 @@
 // Middleware for NextAuth.js authentication
 
-export { default } from "next-auth/middleware"
+export const runtime = 'edge';
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(req: NextRequest) {
   // Skip auth check for public paths
-  if (req.nextUrl.pathname.startsWith('/auth/') || 
-      req.nextUrl.pathname.startsWith('/api/auth/')) {
+  if (req.nextUrl.pathname.startsWith('/auth/') ||
+    req.nextUrl.pathname.startsWith('/api/auth/')) {
     return NextResponse.next();
   }
+
   const token = req.cookies.get('next-auth.session-token');
-  
+
   if (!token) {
     return NextResponse.redirect(new URL('/auth/signin', req.url));
   }
