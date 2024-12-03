@@ -467,173 +467,175 @@ export function AppChat() {
   usePluggableOptimaLayout(drawerContent, focusedBarContent, focusedMenuItems, 'AppChat');
 
 
-  return <>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <SpeedInsights />
 
-    <SpeedInsights />
+      <PanelGroup
+        direction={isMobile ? 'vertical' : 'horizontal'}
+        id='app-chat-panels'
+        style={{ flexGrow: 1 }}  // Added to make PanelGroup expand
+      >
 
-    <PanelGroup
-      direction={isMobile ? 'vertical' : 'horizontal'}
-      id='app-chat-panels'
-    >
+        {chatPanes.map((pane, idx) => {
+          const _paneIsFocused = idx === focusedPaneIndex;
+          const _paneConversationId = pane.conversationId;
+          const _paneChatHandler = chatHandlers[idx] ?? null;
+          const _paneBeamStore = beamsStores[idx] ?? null;
+          const _paneBeamIsOpen = !!beamsOpens?.[idx] && !!_paneBeamStore;
+          const _panesCount = chatPanes.length;
+          const _keyAndId = `chat-pane-${pane.paneId}`;
+          const _sepId = `sep-pane-${idx}`;
+          return <React.Fragment key={_keyAndId}>
 
-      {chatPanes.map((pane, idx) => {
-        const _paneIsFocused = idx === focusedPaneIndex;
-        const _paneConversationId = pane.conversationId;
-        const _paneChatHandler = chatHandlers[idx] ?? null;
-        const _paneBeamStore = beamsStores[idx] ?? null;
-        const _paneBeamIsOpen = !!beamsOpens?.[idx] && !!_paneBeamStore;
-        const _panesCount = chatPanes.length;
-        const _keyAndId = `chat-pane-${pane.paneId}`;
-        const _sepId = `sep-pane-${idx}`;
-        return <React.Fragment key={_keyAndId}>
-
-          <Panel
-            id={_keyAndId}
-            order={idx}
-            collapsible={chatPanes.length === 2}
-            defaultSize={(_panesCount === 3 && idx === 1) ? 34 : Math.round(100 / _panesCount)}
-            minSize={20}
-            onClick={(event) => {
-              const setFocus = chatPanes.length < 2 || !event.altKey;
-              setFocusedPaneIndex(setFocus ? idx : -1);
-            }}
-            onCollapse={() => {
-              // NOTE: despite the delay to try to let the draggin settle, there seems to be an issue with the Pane locking the screen
-              // setTimeout(() => removePane(idx), 50);
-              // more than 2 will result in an assertion from the framework
-              if (chatPanes.length === 2) removePane(idx);
-            }}
-            style={{
-              // for anchoring the scroll button in place
-              position: 'relative',
-              ...(isMultiPane ? {
-                borderRadius: '0.375rem',
-                border: `2px solid ${_paneIsFocused
-                  ? ((willMulticast || !isMultiConversationId) ? theme.palette.primary.solidBg : theme.palette.primary.solidBg)
-                  : ((willMulticast || !isMultiConversationId) ? theme.palette.primary.softActiveBg : theme.palette.background.level1)}`,
-                // DISABLED on 2024-03-13, it gets in the way quite a lot
-                // filter: (!willMulticast && !_paneIsFocused)
-                //   ? (!isMultiConversationId ? 'grayscale(66.67%)' /* clone of the same */ : 'grayscale(66.67%)')
-                //   : undefined,
-              } : {
-                // NOTE: this is a workaround for the 'stuck-after-collapse-close' issue. We will collapse the 'other' pane, which
-                // will get it removed (onCollapse), and somehow this pane will be stuck with a pointerEvents: 'none' style, which de-facto
-                // disables further interaction with the chat. This is a workaround to re-enable the pointer events.
-                // The root cause seems to be a Dragstate not being reset properly, however the pointerEvents has been set since 0.0.56 while
-                // it was optional before: https://github.com/bvaughn/react-resizable-panels/issues/241
-                pointerEvents: 'auto',
-              }),
-            }}
-          >
-
-            <ScrollToBottom
-              bootToBottom
-              stickToBottomInitial
-              sx={{ display: 'flex', flexDirection: 'column' }}
+            <Panel
+              id={_keyAndId}
+              order={idx}
+              collapsible={chatPanes.length === 2}
+              defaultSize={(_panesCount === 3 && idx === 1) ? 34 : Math.round(100 / _panesCount)}
+              minSize={20}
+              onClick={(event) => {
+                const setFocus = chatPanes.length < 2 || !event.altKey;
+                setFocusedPaneIndex(setFocus ? idx : -1);
+              }}
+              onCollapse={() => {
+                // NOTE: despite the delay to try to let the draggin settle, there seems to be an issue with the Pane locking the screen
+                // setTimeout(() => removePane(idx), 50);
+                // more than 2 will result in an assertion from the framework
+                if (chatPanes.length === 2) removePane(idx);
+              }}
+              style={{
+                // for anchoring the scroll button in place
+                position: 'relative',
+                ...(isMultiPane ? {
+                  borderRadius: '0.375rem',
+                  border: `2px solid ${_paneIsFocused
+                    ? ((willMulticast || !isMultiConversationId) ? theme.palette.primary.solidBg : theme.palette.primary.solidBg)
+                    : ((willMulticast || !isMultiConversationId) ? theme.palette.primary.softActiveBg : theme.palette.background.level1)}`,
+                  // DISABLED on 2024-03-13, it gets in the way quite a lot
+                  // filter: (!willMulticast && !_paneIsFocused)
+                  //   ? (!isMultiConversationId ? 'grayscale(66.67%)' /* clone of the same */ : 'grayscale(66.67%)')
+                  //   : undefined,
+                } : {
+                  // NOTE: this is a workaround for the 'stuck-after-collapse-close' issue. We will collapse the 'other' pane, which
+                  // will get it removed (onCollapse), and somehow this pane will be stuck with a pointerEvents: 'none' style, which de-facto
+                  // disables further interaction with the chat. This is a workaround to re-enable the pointer events.
+                  // The root cause seems to be a Dragstate not being reset properly, however the pointerEvents has been set since 0.0.56 while
+                  // it was optional before: https://github.com/bvaughn/react-resizable-panels/issues/241
+                  pointerEvents: 'auto',
+                }),
+              }}
             >
 
-              {!_paneBeamIsOpen && (
-                <ChatMessageList
-                  conversationId={_paneConversationId}
-                  conversationHandler={_paneChatHandler}
-                  capabilityHasT2I={capabilityHasT2I}
-                  chatLLMContextTokens={chatLLM?.contextTokens ?? null}
-                  fitScreen={isMobile || isMultiPane}
-                  isMessageSelectionMode={isMessageSelectionMode}
-                  setIsMessageSelectionMode={setIsMessageSelectionMode}
-                  onConversationBranch={handleConversationBranch}
-                  onConversationExecuteHistory={handleConversationExecuteHistory}
-                  onTextDiagram={handleTextDiagram}
-                  onTextImagine={handleTextImagine}
-                  onTextSpeak={handleTextSpeak}
-                  sx={{
-                    flexGrow: 1,
-                  }}
-                />
-              )}
+              <ScrollToBottom
+                bootToBottom
+                stickToBottomInitial
+                sx={{ display: 'flex', flexDirection: 'column' }}
+              >
 
-              {_paneBeamIsOpen && (
-                <ChatBeamWrapper
-                  beamStore={_paneBeamStore}
-                  isMobile={isMobile}
-                  inlineSx={{
-                    flexGrow: 1,
-                    // minHeight: 'calc(100vh - 69px - var(--AGI-Nav-width))',
-                  }}
-                />
-              )}
+                {!_paneBeamIsOpen && (
+                  <ChatMessageList
+                    conversationId={_paneConversationId}
+                    conversationHandler={_paneChatHandler}
+                    capabilityHasT2I={capabilityHasT2I}
+                    chatLLMContextTokens={chatLLM?.contextTokens ?? null}
+                    fitScreen={isMobile || isMultiPane}
+                    isMessageSelectionMode={isMessageSelectionMode}
+                    setIsMessageSelectionMode={setIsMessageSelectionMode}
+                    onConversationBranch={handleConversationBranch}
+                    onConversationExecuteHistory={handleConversationExecuteHistory}
+                    onTextDiagram={handleTextDiagram}
+                    onTextImagine={handleTextImagine}
+                    onTextSpeak={handleTextSpeak}
+                    sx={{
+                      flexGrow: 1,
+                    }}
+                  />
+                )}
 
-              {/* Visibility and actions are handled via Context */}
-              <ScrollToBottomButton />
+                {_paneBeamIsOpen && (
+                  <ChatBeamWrapper
+                    beamStore={_paneBeamStore}
+                    isMobile={isMobile}
+                    inlineSx={{
+                      flexGrow: 1,
+                      // minHeight: 'calc(100vh - 69px - var(--AGI-Nav-width))',
+                    }}
+                  />
+                )}
 
-            </ScrollToBottom>
+                {/* Visibility and actions are handled via Context */}
+                <ScrollToBottomButton />
 
-          </Panel>
+              </ScrollToBottom>
 
-          {/* Panel Separators & Resizers */}
-          {idx < _panesCount - 1 && (
-            <PanelResizeHandle id={_sepId}>
-              <PanelResizeInset />
-            </PanelResizeHandle>
-          )}
+            </Panel>
 
-        </React.Fragment>;
-      })}
+            {/* Panel Separators & Resizers */}
+            {idx < _panesCount - 1 && (
+              <PanelResizeHandle id={_sepId}>
+                <PanelResizeInset />
+              </PanelResizeHandle>
+            )}
 
-    </PanelGroup>
+          </React.Fragment>;
+        })}
 
-    <Composer
-      isMobile={isMobile}
-      chatLLM={chatLLM}
-      composerTextAreaRef={composerTextAreaRef}
-      conversationId={focusedPaneConversationId}
-      capabilityHasT2I={capabilityHasT2I}
-      isMulticast={!isMultiConversationId ? null : isComposerMulticast}
-      isDeveloperMode={isFocusedChatDeveloper}
-      onAction={handleComposerAction}
-      onTextImagine={handleTextImagine}
-      setIsMulticast={setIsComposerMulticast}
-      sx={beamOpenStoreInFocusedPane ? composerClosedSx : composerOpenSx}
-    />
+      </PanelGroup>
 
-    {/* Diagrams */}
-    {!!diagramConfig && <DiagramsModal config={diagramConfig} onClose={() => setDiagramConfig(null)} />}
-
-    {/* Flatten */}
-    {!!flattenConversationId && (
-      <FlattenerModal
-        conversationId={flattenConversationId}
-        onConversationBranch={handleConversationBranch}
-        onClose={() => setFlattenConversationId(null)}
+      <Composer
+        isMobile={isMobile}
+        chatLLM={chatLLM}
+        composerTextAreaRef={composerTextAreaRef}
+        conversationId={focusedPaneConversationId}
+        capabilityHasT2I={capabilityHasT2I}
+        isMulticast={!isMultiConversationId ? null : isComposerMulticast}
+        isDeveloperMode={isFocusedChatDeveloper}
+        onAction={handleComposerAction}
+        onTextImagine={handleTextImagine}
+        setIsMulticast={setIsComposerMulticast}
+        sx={beamOpenStoreInFocusedPane ? composerClosedSx : composerOpenSx}
       />
-    )}
 
-    {/* Import / Export  */}
-    {!!tradeConfig && (
-      <TradeModal
-        config={tradeConfig}
-        onConversationActivate={handleOpenConversationInFocusedPane}
-        onClose={() => setTradeConfig(null)}
-      />
-    )}
+      {/* Diagrams */}
+      {!!diagramConfig && <DiagramsModal config={diagramConfig} onClose={() => setDiagramConfig(null)} />}
 
-    {/* [confirmation] Reset Conversation */}
-    {!!clearConversationId && (
-      <ConfirmationModal
-        open onClose={() => setClearConversationId(null)} onPositive={handleConfirmedClearConversation}
-        confirmationText='Are you sure you want to discard all messages?'
-        positiveActionText='Clear conversation'
-      />
-    )}
+      {/* Flatten */}
+      {!!flattenConversationId && (
+        <FlattenerModal
+          conversationId={flattenConversationId}
+          onConversationBranch={handleConversationBranch}
+          onClose={() => setFlattenConversationId(null)}
+        />
+      )}
 
-    {/* [confirmation] Delete All */}
-    {!!deleteConversationIds?.length && (
-      <ConfirmationModal
-        open onClose={() => setDeleteConversationIds(null)} onPositive={handleConfirmedDeleteConversations}
-        confirmationText={`Are you absolutely sure you want to delete ${deleteConversationIds.length === 1 ? 'this conversation' : 'these conversations'}? This action cannot be undone.`}
-        positiveActionText={deleteConversationIds.length === 1 ? 'Delete conversation' : `Yes, delete all ${deleteConversationIds.length} conversations`}
-      />
-    )}
+      {/* Import / Export  */}
+      {!!tradeConfig && (
+        <TradeModal
+          config={tradeConfig}
+          onConversationActivate={handleOpenConversationInFocusedPane}
+          onClose={() => setTradeConfig(null)}
+        />
+      )}
 
-  </>;
+      {/* [confirmation] Reset Conversation */}
+      {!!clearConversationId && (
+        <ConfirmationModal
+          open onClose={() => setClearConversationId(null)} onPositive={handleConfirmedClearConversation}
+          confirmationText='Are you sure you want to discard all messages?'
+          positiveActionText='Clear conversation'
+        />
+      )}
+
+      {/* [confirmation] Delete All */}
+      {!!deleteConversationIds?.length && (
+        <ConfirmationModal
+          open onClose={() => setDeleteConversationIds(null)} onPositive={handleConfirmedDeleteConversations}
+          confirmationText={`Are you absolutely sure you want to delete ${deleteConversationIds.length === 1 ? 'this conversation' : 'these conversations'}? This action cannot be undone.`}
+          positiveActionText={deleteConversationIds.length === 1 ? 'Delete conversation' : `Yes, delete all ${deleteConversationIds.length} conversations`}
+        />
+      )}
+
+    </div>
+  );
 }

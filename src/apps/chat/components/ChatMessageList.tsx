@@ -220,11 +220,11 @@ export function ChatMessageList(props: {
 
   if (!filteredMessages.length)
     return (
-      <Box sx={{ ...props.sx }}>
+      <div style={{ ...(props.sx as React.CSSProperties) }}>
         {conversationId
           ? <PersonaSelector conversationId={conversationId} runExample={handleRunExample} />
           : <InlineError severity='info' error='Select a conversation' sx={{ m: 2 }} />}
-      </Box>
+      </div>
     );
 
   return (
@@ -238,6 +238,8 @@ export function ChatMessageList(props: {
       // layout
       display: 'flex',
       flexDirection: 'column',
+      flexGrow: 1,         // Added to expand List vertically
+      overflowY: 'auto',   // Added to enable scrolling
     }}>
 
       {optionalTranslationWarning}
