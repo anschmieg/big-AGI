@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth';
 
 export default NextAuth({
+  
   providers: [
     {
       id: 'nextcloud',
@@ -19,8 +20,8 @@ export default NextAuth({
       userinfo: {
         url: `${process.env.NEXTCLOUD_BASE_URL}/ocs/v2.php/cloud/user`,
         // Add required headers for OCS API
-        request: async ({ tokens, provider }) => {
-          const response = await fetch(provider.userinfo.url, {
+        request: async ({ tokens }) => {
+          const response = await fetch('https://cloud.canthat.be/ocs/v2.php/cloud/user', {
             headers: {
               Authorization: `Bearer ${tokens.access_token}`,
               'OCS-APIRequest': 'true',
@@ -52,7 +53,7 @@ export default NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken;
+      // No need to add accessToken or user.id to the session
       return session;
     },
   },

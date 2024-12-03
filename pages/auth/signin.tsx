@@ -1,16 +1,18 @@
-import * as React from 'react';
 import { GetServerSideProps } from 'next';
-import { getProviders, signIn, ClientSafeProvider, getSession } from 'next-auth/react';
-
+import { getProviders, getSession, ClientSafeProvider } from 'next-auth/react';
 import { AppSignIn } from 'src/apps/auth/AppSignIn';
-import { withLayout } from '~/common/layout/withLayout';
+import { OptimaLayoutProvider } from '~/common/layout/optima/useOptimaLayout';
 
-interface SignInPageProps {
+interface SignInProps {
   providers: Record<string, ClientSafeProvider> | null;
 }
 
-const SignInPage: React.FC<SignInPageProps> = ({ providers }) => {
-  return withLayout({ type: 'optima' }, <AppSignIn providers={providers} />);
+const SignIn: React.FC<SignInProps> = ({ providers }) => {
+  return (
+    <OptimaLayoutProvider>
+      <AppSignIn providers={providers} />
+    </OptimaLayoutProvider>
+  );
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -30,4 +32,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default SignInPage;
+export default SignIn;
