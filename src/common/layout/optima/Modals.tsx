@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { ModelsModal } from '~/modules/llms/models-modal/ModelsModal';
+import { ProfileModal } from 'src/apps/ProfileModal';
 import { SettingsModal } from 'src/apps/settings-modal/SettingsModal';
 import { ShortcutsModal } from 'src/apps/settings-modal/ShortcutsModal';
-import { ProfileModal } from './components/ProfileModal';
 import { useOptimaLayout } from './useOptimaLayout';
 
 export function Modals(props: { suspendAutoModelsSetup?: boolean }) {
