@@ -44,6 +44,8 @@ import { usePanesManager } from './components/panes/usePanesManager';
 
 import { _handleExecute } from './editors/_handleExecute';
 
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 
 // what to say when a chat is new and has no title
 export const CHAT_NOVEL_TITLE = 'Chat';
@@ -466,6 +468,8 @@ export function AppChat() {
 
 
   return <>
+
+    <SpeedInsights />
 
     <PanelGroup
       direction={isMobile ? 'vertical' : 'horizontal'}

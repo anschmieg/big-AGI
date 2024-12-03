@@ -36,7 +36,7 @@
     "@trpc/react-query": "10.44.1",
     "@trpc/server": "10.44.1",
     "@vercel/analytics": "^1.2.2",
-    "@vercel/speed-insights": "^1.0.10",
+    "@vercel/speed-insights": "^1.1.0",
     "browser-fs-access": "^0.35.0",
     "cheerio": "^1.0.0-rc.12",
     "dexie": "^4.0.4",
