@@ -14,10 +14,14 @@ export default function SignInPage({ providers }: SignInPageProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
+  const [session, providers] = await Promise.all([
+    getSession(context),
+    getProviders()
+  ]);
+
   if (session) {
     return { redirect: { destination: '/', permanent: false } };
   }
-  const providers = await getProviders();
+
   return { props: { providers } };
 };

@@ -7,17 +7,17 @@ export default NextAuth({
       name: 'Nextcloud',
       type: 'oauth',
       authorization: {
-        url: `${NEXTCLOUD_BASE_URL}/apps/oauth2/authorize`,
+        url: `${process.env.NEXTCLOUD_BASE_URL}/apps/oauth2/authorize`,
         params: {
           scope: 'profile email',
           response_type: 'code',
         }
       },
       token: {
-        url: `${NEXTCLOUD_BASE_URL}/apps/oauth2/api/v1/token`,
+        url: `${process.env.NEXTCLOUD_BASE_URL}/apps/oauth2/api/v1/token`,
       },
       userinfo: {
-        url: `${NEXTCLOUD_BASE_URL}/ocs/v2.php/cloud/user`,
+        url: `${process.env.NEXTCLOUD_BASE_URL}/ocs/v2.php/cloud/user`,
         // Add required headers for OCS API
         request: async ({ tokens, provider }) => {
           const response = await fetch(provider.userinfo.url, {
