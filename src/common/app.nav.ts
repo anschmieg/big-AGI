@@ -17,6 +17,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
+import { PersonOutlineOutlined as PersonOutlineIcon, Person as PersonIcon } from '@mui/icons-material';
 import TextsmsIcon from '@mui/icons-material/Textsms';
 import TextsmsOutlinedIcon from '@mui/icons-material/TextsmsOutlined';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
@@ -68,7 +69,7 @@ export interface NavItemApp extends ItemBase {
 
 export interface NavItemModal extends ItemBase {
   type: 'modal',
-  overlayId: 'settings' | 'models',
+  overlayId: 'settings' | 'models' | 'profile',
 }
 
 export interface NavItemExtLink extends ItemBase {
@@ -212,6 +213,12 @@ export const navItems: {
 
   // Modals
   modals: [
+    {
+      name: 'Profile',
+      icon: PersonOutlineIcon,
+      type: 'modal',
+      overlayId: 'profile',
+    },
     {
       name: 'Manage Models',
       icon: BuildCircleIcon,

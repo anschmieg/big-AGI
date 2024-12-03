@@ -1,8 +1,8 @@
-import * as React from 'react';
 import Head from 'next/head';
-import { MyAppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 import { Analytics as VercelAnalytics } from '@vercel/analytics/next';
 import { SpeedInsights as VercelSpeedInsights } from '@vercel/speed-insights/next';
+import { SessionProvider } from 'next-auth/react';
 
 import { Brand } from '~/common/app.config';
 import { apiQuery } from '~/common/util/trpc.client';
@@ -22,35 +22,39 @@ import { ProviderTheming } from '~/common/providers/ProviderTheming';
 import { hasGoogleAnalytics, OptionalGoogleAnalytics } from '~/common/components/GoogleAnalytics';
 import { isVercelFromFrontend } from '~/common/util/pwaUtils';
 
+function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+  return (
+    <>
+      <Head>
+        <title>{Brand.Title.Base}</title>
+        <meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no' />
+      </Head>
 
-const MyApp = ({ Component, emotionCache, pageProps }: MyAppProps) =>
-  <>
-
-    <Head>
-      <title>{Brand.Title.Common}</title>
-      <meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no' />
-    </Head>
-
-    <ProviderTheming emotionCache={emotionCache}>
-      <ProviderSingleTab>
-        <ProviderTRPCQuerySettings>
-          <ProviderBackendCapabilities>
-            {/* ^ SSR boundary */}
-            <ProviderBootstrapLogic>
-              <ProviderSnacks>
-                <Component {...pageProps} />
-              </ProviderSnacks>
-            </ProviderBootstrapLogic>
-          </ProviderBackendCapabilities>
-        </ProviderTRPCQuerySettings>
-      </ProviderSingleTab>
-    </ProviderTheming>
-
-    {isVercelFromFrontend && <VercelAnalytics debug={false} />}
-    {isVercelFromFrontend && <VercelSpeedInsights debug={false} sampleRate={1 / 2} />}
-    {hasGoogleAnalytics && <OptionalGoogleAnalytics />}
-
-  </>;
+      <SessionProvider session={session}>
+        <ProviderTheming>
+          <ProviderBootstrapLogic>
+            <ProviderBackendCapabilities>
+              <ProviderTRPCQuerySettings>
+                <ProviderSingleTab>
+                  <ProviderSnacks>
+                    <Component {...pageProps} />
+                    {hasGoogleAnalytics && <OptionalGoogleAnalytics />}
+                    {isVercelFromFrontend && (
+                      <>
+                        <VercelAnalytics />
+                        <VercelSpeedInsights />
+                      </>
+                    )}
+                  </ProviderSnacks>
+                </ProviderSingleTab>
+              </ProviderTRPCQuerySettings>
+            </ProviderBackendCapabilities>
+          </ProviderBootstrapLogic>
+        </ProviderTheming>
+      </SessionProvider>
+    </>
+  );
+}
 
 // enables the React Query API invocation
-export default apiQuery.withTRPC(MyApp);
+export default apiQuery.withTRPC(App);
