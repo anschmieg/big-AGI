@@ -1,15 +1,18 @@
-// Middleware for NextAuth.js authentication
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   // Skip auth check for public paths
-  if (req.nextUrl.pathname.startsWith('/auth/') ||
-    req.nextUrl.pathname.startsWith('/api/auth/')) {
+  if (
+    req.nextUrl.pathname.startsWith('/auth/') ||
+    req.nextUrl.pathname.startsWith('/api/auth/')
+  ) {
     return NextResponse.next();
   }
 
-  const token = req.cookies.get('next-auth.session-token');
+  // Use getToken to retrieve the session token
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
     return NextResponse.redirect(new URL('/auth/signin', req.url));
@@ -20,7 +23,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    // Exclude public paths from middleware
     '/((?!auth|api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
