@@ -7,17 +7,17 @@ export default NextAuth({
       name: 'Nextcloud',
       type: 'oauth',
       authorization: {
-        url: `${process.env.NEXTCLOUD_BASE_URL}/apps/oauth2/authorize`,
+        url: 'https://cloud.canthat.be/apps/oauth2/authorize',
         params: {
           scope: 'profile email',
           response_type: 'code',
         }
       },
       token: {
-        url: `${process.env.NEXTCLOUD_BASE_URL}/apps/oauth2/api/v1/token`,
+        url: 'https://cloud.canthat.be/apps/oauth2/api/v1/token',
       },
       userinfo: {
-        url: `${process.env.NEXTCLOUD_BASE_URL}/ocs/v2.php/cloud/user`,
+        url: 'https://cloud.canthat.be/ocs/v2.php/cloud/user',
         // Add required headers for OCS API
         request: async ({ tokens, provider }) => {
           const response = await fetch(provider.userinfo.url, {
@@ -55,6 +55,13 @@ export default NextAuth({
       session.accessToken = token.accessToken;
       return session;
     },
+  },
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // days to seconds
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // days to seconds
   },
   debug: process.env.NODE_ENV === 'development',
 });

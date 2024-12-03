@@ -21,82 +21,7 @@ import { AppChatSettingsAI } from './AppChatSettingsAI';
 import { AppChatSettingsUI } from './settings-ui/AppChatSettingsUI';
 import { UxLabsSettings } from './UxLabsSettings';
 import { VoiceSettings } from './VoiceSettings';
-
-
-// styled <AccordionGroup variant='plain'> into a Topics component
-const Topics = styled(AccordionGroup)(({ theme }) => ({
-  // round and clip corners
-  borderRadius: theme.radius.md, overflow: 'hidden',
-
-  // larger summary, with a spinning icon
-  [`& .${accordionSummaryClasses.button}`]: {
-    minHeight: 64,
-  },
-  [`& .${accordionSummaryClasses.indicator}`]: {
-    transition: '0.2s',
-  },
-  [`& [aria-expanded="true"] .${accordionSummaryClasses.indicator}`]: {
-    transform: 'rotate(45deg)',
-  },
-
-  // larger padded block
-  [`& .${accordionDetailsClasses.content}.${accordionDetailsClasses.expanded}`]: {
-    paddingBlock: '1rem',
-  },
-}));
-
-function Topic(props: { title?: string, icon?: string | React.ReactNode, startCollapsed?: boolean, children?: React.ReactNode }) {
-
-  // state
-  const [expanded, setExpanded] = React.useState(props.startCollapsed !== true);
-
-  // derived state
-  const hideTitleBar = !props.title && !props.icon;
-
-  return (
-    <Accordion
-      expanded={expanded || hideTitleBar}
-      onChange={(_event, expanded) => setExpanded(expanded)}
-      sx={{
-        '&:not(:last-child)': {
-          borderBottomColor: 'primary.softActiveBg',
-        },
-        '&:last-child': {
-          borderBottom: 'none',
-        },
-      }}
-    >
-
-      {!hideTitleBar && (
-        <AccordionSummary
-          color='primary'
-          variant={expanded ? 'plain' : 'soft'}
-          indicator={<AddIcon />}
-        >
-          {!!props.icon && (
-            <Avatar
-              color='primary'
-              variant={expanded ? 'soft' : 'plain'}
-            >
-              {props.icon}
-            </Avatar>
-          )}
-          <ListItemContent>
-            {props.title}
-          </ListItemContent>
-        </AccordionSummary>
-      )}
-
-      <AccordionDetails>
-        <Stack sx={{ gap: 'calc(var(--Card-padding) / 2)', border: 'none' }}>
-          {props.children}
-        </Stack>
-      </AccordionDetails>
-
-    </Accordion>
-  );
-}
-
+import { Topics, Topic } from '~/common/components/Topics';
 
 const settingTaxSx: SxProps = {
   fontFamily: 'body',
@@ -206,7 +131,6 @@ export function SettingsModal(props: {
             <Topic icon={<SearchIcon />} title='Google Search API' startCollapsed>
               <GoogleSearchSettings />
             </Topic>
-            {/*<Topic icon='🛠' title='Other tools...' />*/}
           </Topics>
         </TabPanel>
       </Tabs>

@@ -51,10 +51,28 @@ let nextConfig = {
   //   },
   // },
 
-  // Uncomment the following leave console messages in production
+  // Uncomment the following to keep console messages in production
   // compiler: {
   //   removeConsole: false,
   // },
+
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline';"
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          }
+        ],
+      },
+    ];
+  },
 };
 
 // Validate environment variables, if set at build time. Will be actually read and used at runtime.

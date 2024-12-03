@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 
 import { AppChat } from '../src/apps/chat/AppChat';
 import { withLayout } from '~/common/layout/withLayout';
+import { validateCallbackUrl } from '../src/common/util/auth';
 
 export default function IndexPage() {
   const { data: session, status } = useSession(); // Get session data
@@ -16,8 +17,12 @@ export default function IndexPage() {
     if (status === 'unauthenticated') {
       router.push('/auth/signin');
     } else if (status === 'authenticated' && router.query.callbackUrl) {
-      // Handle redirect back from auth
-      router.push(router.query.callbackUrl as string);
+      const callbackUrl = router.query.callbackUrl as string;
+      if (validateCallbackUrl(callbackUrl)) {
+        router.push(callbackUrl);
+      } else {
+        router.push('/');
+      }
     }
   }, [status, session, router]);
 

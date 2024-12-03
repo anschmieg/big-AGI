@@ -2,12 +2,13 @@ import * as React from 'react';
 import Router from 'next/router';
 
 import type { SxProps } from '@mui/joy/styles/types';
+import { Tooltip } from '@mui/joy';
 
 import { checkDivider, checkVisibileIcon, NavItemApp, navItems } from '~/common/app.nav';
+import { useOptimaLayout } from './useOptimaLayout';
 
 import { InvertedBar } from './components/InvertedBar';
 import { MobileNavGroupBox, MobileNavIcon, mobileNavItemClasses } from './components/MobileNavIcon';
-
 
 export function MobileNav(props: {
   component: React.ElementType,
@@ -15,12 +16,12 @@ export function MobileNav(props: {
   hideOnFocusMode?: boolean,
   sx?: SxProps,
 }) {
+  const {
+    showPreferencesTab, openPreferencesTab,
+    showModelsSetup, openModelsSetup,
+    showProfile, openProfile,
+  } = useOptimaLayout();
 
-  // external state
-  // const { isFocusedMode } = useOptimaLayout();
-
-
-  // App items
   const navAppItems = React.useMemo(() => {
     return navItems.apps
       .filter(app => checkVisibileIcon(app, true, undefined))
@@ -28,7 +29,6 @@ export function MobileNav(props: {
         const isActive = app === props.currentApp;
 
         if (checkDivider(app)) {
-          // return <Divider key={'div-' + appIdx} sx={{ mx: 1, height: '50%', my: 'auto' }} />;
           return null;
         }
 
@@ -40,17 +40,35 @@ export function MobileNav(props: {
             onClick={() => Router.push(app.landingRoute || app.route)}
             className={`${mobileNavItemClasses.typeApp} ${isActive ? mobileNavItemClasses.active : ''}`}
           >
-            {/*{(isActive && app.iconActive) ? <app.iconActive /> : <app.icon />}*/}
             <app.icon />
           </MobileNavIcon>
         );
       });
   }, [props.currentApp]);
 
+  const navModalItems = React.useMemo(() => {
+    return navItems.modals.map(item => {
+      const stateActionMap: { [key: string]: { isActive: boolean, showModal: () => void } } = {
+        settings: { isActive: !!showPreferencesTab, showModal: () => openPreferencesTab() },
+        models: { isActive: showModelsSetup, showModal: openModelsSetup },
+        profile: { isActive: showProfile, showModal: openProfile },
+        0: { isActive: false, showModal: () => console.log('Action missing for ', item.overlayId) },
+      };
+      const { isActive, showModal } = stateActionMap[item.overlayId] ?? stateActionMap[0];
 
-  // NOTE: this may be abrupt a little
-  // if (isFocusedMode && props.hideOnFocusMode)
-  //   return null;
+      return (
+        <Tooltip key={'n-m-' + item.overlayId} title={item.name}>
+          <MobileNavIcon
+            variant={isActive ? 'soft' : undefined}
+            onClick={showModal}
+            className={`mobile-nav-item-link-modal ${isActive ? mobileNavItemClasses.active : ''}`}
+          >
+            {(isActive && item.iconActive) ? <item.iconActive /> : <item.icon />}
+          </MobileNavIcon>
+        </Tooltip>
+      );
+    });
+  }, [openModelsSetup, openPreferencesTab, showModelsSetup, showPreferencesTab, showProfile, openProfile]);
 
   return (
     <InvertedBar
@@ -59,11 +77,10 @@ export function MobileNav(props: {
       direction='horizontal'
       sx={props.sx}
     >
-
       <MobileNavGroupBox>
         {navAppItems}
+        {navModalItems}
       </MobileNavGroupBox>
-
     </InvertedBar>
   );
 }

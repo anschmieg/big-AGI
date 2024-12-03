@@ -34,6 +34,7 @@ interface OptimaLayoutState {
   showModelsSetup: boolean;
   showLlmOptions: DLLMId | null;
   showShortcuts: boolean;
+  showProfile: boolean;
 
   // misc/temp
   isFocusedMode: boolean; // when active, the Mobile App menu is not displayed
@@ -50,6 +51,7 @@ const initialState: OptimaLayoutState = {
   showModelsSetup: false,
   showLlmOptions: null,
   showShortcuts: false,
+  showProfile: false,
 
   isFocusedMode: false,
 
@@ -75,6 +77,9 @@ interface OptimaLayoutActions {
 
   openShortcuts: () => void;
   closeShortcuts: () => void;
+
+  openProfile: () => void;
+  closeProfile: () => void;
 
   setIsFocusedMode: (isFocusedMode: boolean) => void;
 }
@@ -108,6 +113,12 @@ export function OptimaLayoutProvider(props: { children: React.ReactNode }) {
 
     openShortcuts: () => setState(state => ({ ...state, showShortcuts: true })),
     closeShortcuts: () => setState(state => ({ ...state, showShortcuts: false })),
+
+    openProfile: () => {
+      console.log('Profile click handler triggered');
+      setState(state => ({ ...state, showProfile: true }));
+    },
+    closeProfile: () => setState(state => ({ ...state, showProfile: false })),  
 
     setIsFocusedMode: (isFocusedMode: boolean) => setState(state => ({ ...state, isFocusedMode })),
 
